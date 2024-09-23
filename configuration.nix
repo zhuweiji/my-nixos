@@ -22,24 +22,20 @@
     pkgs.git
   ];
 
-  environment.extraInit = ''
-    export PATH="$HOME/bin:$PATH"
-  '';
-
-  # If you want to ensure the ~/bin directory exists for all users
+  # Create the /etc/nixos/scripts directory
   system.activationScripts = {
-    createBinDirs = {
+    createScriptsDir = {
       text = ''
-        for dir in /home/*; do
-          if [ -d "$dir" ]; then
-            mkdir -p "$dir/bin"
-            chown "$(basename "$dir"):users" "$dir/bin"
-          fi
-        done
+        mkdir -p /etc/nixos/scripts
+        chmod 755 /etc/nixos/scripts
       '';
       deps = [];
     };
   };
+
+  environment.shellInit = ''
+    export PATH=$PATH:/etc/nixos/scripts
+  '';
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
