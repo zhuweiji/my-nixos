@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Check if a package name was provided
+if [ $# -eq 0 ]; then
+    echo "Please provide a package name."
+    exit 1
+fi
+
+# The package name is the first argument
+PACKAGE=$1
+
+# Path to the configuration file
+CONFIG_FILE="/etc/nixos/configuration.nix"
+
+# Check if the file exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: $CONFIG_FILE does not exist."
+    exit 1
+fi
+
+# Check if the package is already in the file
+if grep -q "pkgs.$PACKAGE" "$CONFIG_FILE"; then
+    echo "Package $PACKAGE is already in $CONFIG_FILE"
+    exit 0
+fi
+
+# Create a backup of the original file
+cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
+
+# Check if environment.systemPackages exists in the file
+if grep -q "environment.systemPackages" "$CONFIG_FILE"; then
+    # If it exists, add the new package to the list
+    sed -i "/environment.systemPackages = \[/a \    pkgs.$PACKAGE" "$CONFIG_FILE"
+else
+    # If it doesn't exist, add the whole block
+    echo "
+  environment.systemPackages = [
+    pkgs.$PACKAGE
+  ];" >> "$CONFIG_FILE"
+fi
+
+echo "Package $PACKAGE added to $CONFIG_FILE"
+echo "A backup of the original file was created at ${CONFIG_FILE}.bak"
+echo "Please review the changes and run 'sudo nixos-rebuild switch' to apply them."
