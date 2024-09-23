@@ -22,6 +22,25 @@
     pkgs.git
   ];
 
+  environment.extraInit = ''
+    export PATH="$HOME/bin:$PATH"
+  '';
+
+  # If you want to ensure the ~/bin directory exists for all users
+  system.activationScripts = {
+    createBinDirs = {
+      text = ''
+        for dir in /home/*; do
+          if [ -d "$dir" ]; then
+            mkdir -p "$dir/bin"
+            chown "$(basename "$dir"):users" "$dir/bin"
+          fi
+        done
+      '';
+      deps = [];
+    };
+  };
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It's perfectly fine and recommended to leave
