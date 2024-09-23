@@ -16,7 +16,7 @@
   wsl.enable = true;
   wsl.defaultUser = "nixos";
 
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
     pkgs.python3
     pkgs.alejandra
     pkgs.git
